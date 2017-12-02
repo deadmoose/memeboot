@@ -1,0 +1,29 @@
+{
+  "name": "memeboot",
+  "version": "0.0.1",
+  "description": "Meme creator",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.16.2",
+    "request": "^2.83.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "test",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/kchodorow/memeboot.git"
+  },
+  "keywords": [
+    "meme",
+    "slack"
+  ],
+  "author": "kchodorow",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kchodorow/memeboot/issues"
+  },
+  "homepage": "https://github.com/kchodorow/memeboot#readme"
+}
