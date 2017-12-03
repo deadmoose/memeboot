@@ -1,9 +1,11 @@
+// @flow
 import express from 'express';
 import request from 'request';
 import bodyParser from 'body-parser';
 
 const clientId = process.env.SLACK_ID;
 const clientSecret = process.env.SLACK_SECRET;
+const SEARCH_COMMAND = "search";
 
 const app = express();
 app.use(bodyParser.json());
@@ -46,5 +48,12 @@ app.get('/oauth', function(req, res) {
 
 app.post('/command', function(req, res) {
   console.log(`x: ${JSON.stringify(req.body)}`);
+  const command = req.body.command;
+  const text = req.body.text;
+  if (command == SEARCH_COMMAND) {
+
+  } else {
+    console.log(`Unrecognized command: ${command} ${text}`);
+  }
   res.send('Your ngrok tunnel is up and running!');
 });

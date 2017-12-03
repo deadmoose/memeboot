@@ -10,12 +10,15 @@
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "babel-preset-env": "^1.6.1"
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-flow": "^6.23.0",
+    "flow-bin": "^0.60.1"
   },
   "scripts": {
-    "test": "test",
+    "flow": "flow",
     "start": "node lib/server.js",
-    "watch": "babel --watch src --out-dir lib"
+    "test": "test",
+    "watch": "babel --watch src --out-dir lib --preset=flow"
   },
   "repository": {
     "type": "git",
