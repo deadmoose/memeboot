@@ -1,6 +1,14 @@
 {
-  "presets": ["env", "flow"],
   "plugins": [
     ["module-resolver", { "root": ["./src"] }],
   ],
+  "presets": [
+    [
+      "env", {
+        "targets": {
+          "node": "current" // Required to handle async/await.
+        }
+      }
+    ], 
+    "flow"],
 }

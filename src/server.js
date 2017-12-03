@@ -1,13 +1,15 @@
 // @flow
-import express from 'express';
-import request from 'request';
 import bodyParser from 'body-parser';
+import express from 'express';
+import env from 'node-env-file';
+import request from 'request';
 
 import Search from 'search';
 
+env(`.env`);
 const clientId = process.env.SLACK_ID;
 const clientSecret = process.env.SLACK_SECRET;
-const SEARCH_COMMAND = "search";
+const SEARCH_COMMAND = "/go";
 
 const app = express();
 app.use(bodyParser.json());
@@ -48,12 +50,13 @@ app.get('/oauth', function(req, res) {
   }
 });
 
-app.post('/command', function(req, res) {
+app.post('/command', async function(req, res) {
   const command = req.body.command;
   const text = req.body.text;
   if (command == SEARCH_COMMAND) {
     const search = new Search(text);
-    res.send(search.getResponse());
+    const result = await search.getAttachments();
+    res.json(result);
   } else {
     console.log(`Unrecognized command: ${command} ${text}`);
     res.send('Your ngrok tunnel is up and running!');
