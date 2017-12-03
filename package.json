@@ -2,15 +2,20 @@
   "name": "memeboot",
   "version": "0.0.1",
   "description": "Meme creator",
-  "main": "server.js",
+  "main": "lib/server.js",
   "dependencies": {
+    "body-parser": "^1.18.2",
     "express": "^4.16.2",
     "request": "^2.83.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1"
+  },
   "scripts": {
     "test": "test",
-    "start": "node server.js"
+    "start": "node lib/server.js",
+    "watch": "babel --watch src --out-dir lib"
   },
   "repository": {
     "type": "git",
