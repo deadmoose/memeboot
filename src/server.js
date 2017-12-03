@@ -3,6 +3,8 @@ import express from 'express';
 import request from 'request';
 import bodyParser from 'body-parser';
 
+import Search from 'search';
+
 const clientId = process.env.SLACK_ID;
 const clientSecret = process.env.SLACK_SECRET;
 const SEARCH_COMMAND = "search";
@@ -47,13 +49,13 @@ app.get('/oauth', function(req, res) {
 });
 
 app.post('/command', function(req, res) {
-  console.log(`x: ${JSON.stringify(req.body)}`);
   const command = req.body.command;
   const text = req.body.text;
   if (command == SEARCH_COMMAND) {
-
+    const search = new Search(text);
+    res.send(search.getResponse());
   } else {
     console.log(`Unrecognized command: ${command} ${text}`);
+    res.send('Your ngrok tunnel is up and running!');
   }
-  res.send('Your ngrok tunnel is up and running!');
 });
