@@ -1,5 +1,6 @@
 // @flow
 import _ from 'lodash';
+import assert from 'assert';
 import Link from 'models/link';
 
 class Linkify {
@@ -12,24 +13,16 @@ class Linkify {
     this._domain = body.team_domain;
     const text = body.text;
     const parts = text.split(' ');
-    if (parts.length == 0) {
-      // TODO: show all existing, but maybe only on memeboot channel.
-      this._response = this.all();
-    } else if (parts.length == 1) {
-      // Query for an existing link.
-      this._response = this.query(parts[0]);
-    } else {
-      // Create a new link.
+    if (parts.length == 2) {
       this._response = this.create(parts);
+    } else {
+      assert(parts.length > 0);
+      this._response = this.query(parts[0]);
     }
   }
 
   getResponse() {
     return this._response;
-  }
-
-  all() {
-    return {};
   }
 
   async query(slug: string) {
@@ -40,7 +33,7 @@ class Linkify {
     if (link) {
       return {text: link.get('url')};
     } else {
-      return {text: `Short link ${slug} not found, create it with "/linkify ${slug} <url>"`};
+      return {text: `Short link "${slug}" not found, create it with "/linkify ${slug} <url>"`};
     }
   }
 
@@ -50,19 +43,25 @@ class Linkify {
     const url = parts[1];
     const description = _.join(_.slice(parts, 2, parts.length), ' ');
 
-    const link = Link.forge({slug, url, description, domain: this._domain});
-    const existing = await link.fetch().catch(err => {
+    const link = Link.forge({slug, domain: this._domain});
+    return await link.fetch().then(existing => {
+      if (existing) {
+        const oldLink = existing.get('url');
+        if (existing.get('owner') !== this._owner) {
+          return {text: `${slug} already exists, talk to ${link.get('owner')} about editing it.`};
+        }
+        link.set({url, description});
+        link.save();
+        return {text: `Updated ${slug} from ${oldLink} to ${link.get('url')}`};
+      }
+      // Because the unique id is specified, Bookshelf assumes this is an update, not an insert.
+      link.set({url, description});
+      link.save(null, {method: 'insert'});
+      return {text: `Created! Type "/linkify ${slug}" to use.`}
+    }).catch(err => {
       console.log(err);
       return null;
     });
-    if (existing) {
-      return {text: `${slug} already exists, talk to ${link.get('owner')} about editing it.`};
-    }
-
-    link.set({owner: this._owner});
-    // Because the unique id is specified, Bookshelf assumes this is an update, not an insert.
-    link.save(null, {method: 'insert'});
-    return {text: `Created! Type "/linkify ${slug}" to use.`}
   }
 }
 
