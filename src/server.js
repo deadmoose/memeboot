@@ -4,12 +4,15 @@ import express from 'express';
 import env from 'node-env-file';
 import request from 'request';
 
-import Search from 'search';
+import Linkify from 'commands/linkify';
+import Search from 'commands/search';
 
 env(`.env`);
 const clientId = process.env.SLACK_ID;
 const clientSecret = process.env.SLACK_SECRET;
+
 const SEARCH_COMMAND = "/go";
+const LINK_COMMAND = "/linkify";
 
 const app = express();
 app.use(bodyParser.json());
@@ -53,12 +56,19 @@ app.get('/oauth', function(req, res) {
 app.post('/command', async function(req, res) {
   const command = req.body.command;
   const text = req.body.text;
-  if (command == SEARCH_COMMAND) {
-    const search = new Search(text);
-    const result = await search.getAttachments();
-    res.json(result);
-  } else {
-    console.log(`Unrecognized command: ${command} ${text}`);
-    res.send('Your ngrok tunnel is up and running!');
+  console.log(JSON.stringify(req.body));
+  let result = {};
+  switch (command) {
+    case SEARCH_COMMAND:
+      const search = new Search(text);
+      result = await search.getAttachments();
+      break;
+    case LINK_COMMAND:
+      result = await new Linkify(req.body).getResponse();
+      break;
+    default:
+      res.send(`Watchoo talkin bout, Willis?`);
+      return;
   }
+  res.json(result);
 });
