@@ -6,6 +6,7 @@ import request from 'request';
 
 import Linkify from 'commands/linkify';
 import Search from 'commands/search';
+import setupHttps from 'setup-https';
 
 env(`.env`);
 const clientId = process.env.SLACK_ID;
@@ -18,16 +19,14 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const PORT=4390;
-
-app.listen(PORT, function () {
-  if (!clientId || !clientSecret) {
-    console.log("SLACK_ID and SLACK_SECRET must be set.");
-    process.exit();
-  }
-  console.log("Example app listening on port " + PORT);
-});
-
+if (process.env.NODE_ENV === 'production') {
+  setupHttps(app);
+} else {
+  const port=4390;
+  app.listen(port, function () {
+    console.log("Listening on port " + port);
+  });
+}
 
 app.get('/', function(req, res) {
   res.send('Ngrok is working! Path Hit: ' + req.url);

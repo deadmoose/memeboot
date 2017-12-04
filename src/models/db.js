@@ -11,7 +11,6 @@ const connection = knex({
     database: 'memeboot',
     charset: 'utf8',
   },
-  debug: true,
 });
 
 const orm = bookshelf(connection);
