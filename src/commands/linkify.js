@@ -7,6 +7,7 @@ const HELP = 'help';
 const DELETE = 'delete';
 
 class Linkify {
+  static COMMAND: string;
   _owner: string;
   _domain: string;
   _response: {};
@@ -39,14 +40,16 @@ class Linkify {
 
   usage() {
     return {text: `Create short, memorable aliases for links. Usage:
-      Create or update an alias: "/linkify _alias_ _url_"
-      Use an alias: "/linkify _alias_"
-      Delete an alias: "/linkify delete _alias_"`};
+      Create or update an alias: "${Linkify.COMMAND} _alias_ _url_"
+      Use an alias: "${Linkify.COMMAND} _alias_"
+      Delete an alias: "${Linkify.COMMAND} delete _alias_"`};
   }
 
   async delete(parts: Array<string>) {
     if (parts.length < 2) {
-      return {text: 'Nothing to do. "/linkify delete _alias_" to delete the _alias_ mapping.'}
+      return {
+        text: `Nothing to do. "${Linkify.COMMAND} delete _alias_" to delete the _alias_ mapping.`,
+      }
     }
     const slug = parts[1];
     return await Link.forge({slug, domain: this._domain}).fetch().then(link => {
@@ -69,7 +72,7 @@ class Linkify {
     if (link) {
       return {text: link.get('url')};
     } else {
-      return {text: `Short link "${slug}" not found, create it with "/linkify ${slug} <url>"`};
+      return {text: `Short link "${slug}" not found, create it with "${Linkify.COMMAND} ${slug} <url>"`};
     }
   }
 
@@ -78,7 +81,7 @@ class Linkify {
     const slug = parts[0];
     const url = parts[1];
     const description = _.join(_.slice(parts, 2, parts.length), ' ');
-    const directions = `Type "/linkify ${slug}" to use.`;
+    const directions = `Type "${Linkify.COMMAND} ${slug}" to use.`;
 
     const link = Link.forge({slug, domain: this._domain});
     return await link.fetch().then(existing => {
@@ -101,5 +104,7 @@ class Linkify {
     });
   }
 }
+
+Linkify.COMMAND = '/l';
 
 export default Linkify;

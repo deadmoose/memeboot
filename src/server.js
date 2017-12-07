@@ -6,27 +6,21 @@ import request from 'request';
 
 import Linkify from 'commands/linkify';
 import Search from 'commands/search';
-import setupHttps from 'setup-https';
 
 env(`.env`);
 const clientId = process.env.SLACK_ID;
 const clientSecret = process.env.SLACK_SECRET;
 
 const SEARCH_COMMAND = "/go";
-const LINK_COMMAND = "/linkify";
 
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-if (process.env.NODE_ENV === 'production') {
-  setupHttps(app);
-} else {
-  const port=4390;
-  app.listen(port, function () {
-    console.log("Listening on port " + port);
-  });
-}
+const port=4390;
+app.listen(port, function () {
+  console.log("Listening on port " + port);
+});
 
 app.get('/', function(req, res) {
   res.send('Ngrok is working! Path Hit: ' + req.url);
@@ -62,7 +56,7 @@ app.post('/command', async function(req, res) {
       const search = new Search(text);
       result = await search.getAttachments();
       break;
-    case LINK_COMMAND:
+    case Linkify.COMMAND:
       result = await new Linkify(req.body).getResponse();
       break;
     default:
