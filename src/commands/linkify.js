@@ -77,7 +77,6 @@ class Linkify {
   }
 
   async create(parts: Array<string>) {
-    // TODO: verify it just uses URI-valid chars.
     const slug = parts[0];
     const url = parts[1];
     const description = _.join(_.slice(parts, 2, parts.length), ' ');
