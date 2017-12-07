@@ -5,6 +5,8 @@ import Link from 'models/link';
 
 const HELP = 'help';
 const DELETE = 'delete';
+const INVALID_CHARS = /[^-0-9A-Za-z]/;
+
 
 class Linkify {
   static COMMAND: string;
@@ -65,19 +67,26 @@ class Linkify {
   }
 
   async query(slug: string) {
-    const link = await Link.forge({slug, domain: this._domain}).fetch().catch(err => {
-      console.log(err);
-      return null;
-    });
+    const splitLink = this.splitLink(slug);
+    const link = await Link.forge({ slug: splitLink.base, domain: this._domain })
+      .fetch()
+      .catch(err => {
+        console.log(err);
+        return null;
+      });
     if (link) {
-      return {text: link.get('url')};
+      return { text: `${link.get('url')}${splitLink.ext}` };
     } else {
-      return {text: `Short link "${slug}" not found, create it with "${Linkify.COMMAND} ${slug} <url>"`};
+      return { text: `Short link "${splitLink.base}" not found, create it with "${Linkify.COMMAND} ${splitLink.base} <url>"` };
     }
   }
 
   async create(parts: Array<string>) {
     const slug = parts[0];
+    const errorMessage = this.validateAlias(slug);
+    if (errorMessage) {
+      return errorMessage;
+    }
     const url = parts[1];
     const description = _.join(_.slice(parts, 2, parts.length), ' ');
     const directions = `Type "${Linkify.COMMAND} ${slug}" to use.`;
@@ -101,6 +110,25 @@ class Linkify {
       console.log(err);
       return null;
     });
+  }
+
+  validateAlias(alias: string) {
+    const result = INVALID_CHARS.exec(alias);
+    if (result && result.length > 0) {
+      return {
+        text: `I only know how to handle letters, numbers, and dashes (found "${result[0]}").`
+      }
+    }
+    return null;
+  }
+
+  splitLink(url: string) {
+    const result = INVALID_CHARS.exec(url);
+    if (result && result.length > 0) {
+      const extIndex = url.indexOf(result[0]);
+      return { base: url.substring(0, extIndex), ext: url.substring(extIndex) };
+    }
+    return { base: url, ext: ''};
   }
 }
 

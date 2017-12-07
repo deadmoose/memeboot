@@ -46,34 +46,10 @@ app.get('/oauth', function(req, res) {
   }
 });
 
-function validateSubcommand(res, text) {
-  const parts = text.split(' ');
-  if (parts.length == 0) {
-    // This doesn't seem to ever happen, but just in case.
-    res.json({ text: 'Couldn\'t find a subcommand, try checking the help.' });
-    return false;
-  }
-  const subcommand = parts[0];
-  const invalidChars = /[^-0-9A-Za-z]/;
-  const result = invalidChars.exec(subcommand);
-  if (result && result.length > 0) {
-    res.json({
-      text: `I only know how to handle letters, numbers, and dashes (found "${result[0]}").`
-    });
-    return false;
-  }
-  return true;
-}
-
 app.post('/command', async function(req, res) {
   const command = req.body.command;
   const text = req.body.text;
   console.log(JSON.stringify(req.body));
-
-  if (!validateSubcommand(res, text)) {
-    return;
-  }
-
   let result = {};
   switch (command) {
     case SEARCH_COMMAND:
