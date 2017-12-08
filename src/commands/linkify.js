@@ -1,6 +1,7 @@
 // @flow
 import _ from 'lodash';
 import assert from 'assert';
+
 import Link from 'models/link';
 
 const HELP = 'help';
@@ -96,14 +97,14 @@ class Linkify {
       if (existing) {
         const oldLink = existing.get('url');
         if (existing.get('owner') !== this._owner) {
-          return {text: `${slug} already exists, talk to ${link.get('owner')} about editing it.`};
+          return {text: `${slug} already exists, talk to ${existing.get('owner')} about editing it.`};
         }
-        link.set({url, description});
+        link.set({ url, description, owner: this._owner });
         link.save();
         return {text: `Updated ${slug} from ${oldLink} to ${link.get('url')}. ${directions}`};
       }
       // Because the unique id is specified, Bookshelf assumes this is an update, not an insert.
-      link.set({url, description});
+      link.set({ url, description, owner: this._owner });
       link.save(null, {method: 'insert'});
       return {text: `Created! ${directions}`}
     }).catch(err => {
