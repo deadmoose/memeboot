@@ -1,6 +1,9 @@
 // @flow
-import knex from 'knex';
 import bookshelf from 'bookshelf';
+import knex from 'knex';
+import env from 'node-env-file';
+
+env(`.env`);
 
 const connection = knex({
   client: 'pg',
