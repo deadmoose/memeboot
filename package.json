@@ -23,6 +23,7 @@
     "flow-bin": "^0.60.1"
   },
   "scripts": {
+    "deploy": "./scripts/deploy.sh",
     "start": "./scripts/start.sh",
     "test": "test"
   },
