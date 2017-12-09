@@ -6,6 +6,7 @@
   "dependencies": {
     "body-parser": "^1.18.2",
     "bookshelf": "^0.12.0",
+    "botkit": "^0.6.7",
     "express": "^4.16.2",
     "google-images": "^2.1.0",
     "knex": "^0.14.2",

@@ -55,7 +55,7 @@ class Linkify {
       }
     }
     const slug = parts[1];
-    return await Link.forge({slug, domain: this._domain}).fetch().then(link => {
+    return await Link.forge({ slug }).fetch().then(link => {
       if (!link) {
         return {text: `Link ${slug} not found.`}
       }
@@ -67,9 +67,19 @@ class Linkify {
     });
   }
 
+  static async mention(alias: string) {
+    return await Link.forge({ slug: alias }).fetch().then((link) => {
+      if (link) {
+        return link.get('url');
+      } else {
+        return null;
+      }
+    });
+  }
+
   async query(slug: string) {
     const splitLink = this.splitLink(slug);
-    const link = await Link.forge({ slug: splitLink.base, domain: this._domain })
+    const link = await Link.forge({ slug: splitLink.base })
       .fetch()
       .catch(err => {
         console.log(err);
@@ -92,7 +102,7 @@ class Linkify {
     const description = _.join(_.slice(parts, 2, parts.length), ' ');
     const directions = `Type "${Linkify.COMMAND} ${slug}" to use.`;
 
-    const link = Link.forge({slug, domain: this._domain});
+    const link = Link.forge({ slug });
     return await link.fetch().then(existing => {
       if (existing) {
         const oldLink = existing.get('url');
