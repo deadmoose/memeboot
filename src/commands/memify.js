@@ -1,14 +1,21 @@
+// @flow
 import GoogleImages from 'google-images';
+import env from 'node-env-file';
 
-class Search {
-  constructor(text) {
-    this.client = new GoogleImages(process.env.GOOGLE_CUSTOM_ENGINE_ID, process.env.GOOGLE_API_KEY);
+env(`.env`);
+
+class Memify {
+  static COMMAND: string;
+  static CLIENT: GoogleImages;
+  _text: string;
+
+  constructor(text: string) {
     this._text = text;
   }
 
   getAttachments() {
     const query = this._text;
-    return this.client.search(query, { size: 'medium' }).then(images => {
+    return Memify.CLIENT.search(query, { size: 'medium' }).then(images => {
       if (images.length == 0) {
         return { text: "No images found" };
       }
@@ -26,4 +33,7 @@ class Search {
   }
 }
 
-export default Search;
+Memify.COMMAND = 'meme';
+Memify.CLIENT = new GoogleImages(process.env.GOOGLE_CUSTOM_ENGINE_ID, process.env.GOOGLE_API_KEY);
+
+export default Memify;

@@ -24,5 +24,5 @@ npm install
 killall node || true
 
 # Startup
-npm run start
+npm run start &
 EOF

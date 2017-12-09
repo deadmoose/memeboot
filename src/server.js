@@ -3,21 +3,26 @@ import assert from 'assert';
 import bodyParser from 'body-parser';
 import Botkit from 'botkit';
 import express from 'express';
+import session from 'express-session';
 import env from 'node-env-file';
 import request from 'request';
 
 import Linkify from 'commands/linkify';
-import Search from 'commands/search';
+import Memify from 'commands/memify';
 
 env(`.env`);
 const clientId = process.env.SLACK_ID;
 const clientSecret = process.env.SLACK_SECRET;
 
-const SEARCH_COMMAND = "/go";
-
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: true },
+}));
 
 const port=4390;
 app.listen(port, function () {
@@ -76,21 +81,19 @@ app.get('/oauth', function(req, res) {
 });
 
 app.post('/command', async function(req, res) {
-  const command = req.body.command;
   const text = req.body.text;
+  const command = text.split(' ')[0];
   console.log(JSON.stringify(req.body));
   let result = {};
   switch (command) {
-    case SEARCH_COMMAND:
-      const search = new Search(text);
-      result = await search.getAttachments();
+    case Memify.COMMAND:
+      const meme = new Memify(text);
+      result = await meme.getAttachments();
       break;
     case Linkify.COMMAND:
+    default:
       result = await new Linkify(req.body).getResponse();
       break;
-    default:
-      res.send(`Watchoo talkin bout, Willis?`);
-      return;
   }
   res.json(result);
 });
