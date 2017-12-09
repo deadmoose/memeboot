@@ -2,6 +2,5 @@
 
 set -eux
 
-node_modules/flow-bin/flow-osx-v0.60.1/flow
-npx babel src --out-dir lib
+scripts/build.sh
 node lib/server.js

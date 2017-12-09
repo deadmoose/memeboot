@@ -2,7 +2,27 @@
 
 set -eux
 
-node_modules/flow-bin/flow-osx-v0.60.1/flow
-npx babel src --out-dir dist
-tar czf dist.tgz dist node_modules
-scp dist.tgz slackbot:/home/ec2-user/memeboot/dist.tgz
+scripts/build.sh
+
+tgz="$(npm pack)"
+scp "$tgz" "slackbot:/home/ec2-user/$tgz"
+ssh slackbot <<EOF
+set -eux
+
+# Cleanup old package
+rm -r package
+
+# Install new package
+tar zxvf "$tgz"
+cp .env package/.env
+cd package
+
+# Install prereqs
+npm install
+
+# Shutdown old server, if running
+killall node || true
+
+# Startup
+npm run start
+EOF

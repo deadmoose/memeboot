@@ -1,5 +1,5 @@
 .env
 dist
-dist.tgz
 lib
+memeboot-*.tgz
 node_modules
