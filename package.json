@@ -7,13 +7,18 @@
     "body-parser": "^1.18.2",
     "bookshelf": "^0.12.0",
     "botkit": "^0.6.7",
+    "commander": "^2.12.2",
     "express": "^4.16.2",
+    "express-session": "^1.15.6",
     "google-images": "^2.1.0",
     "knex": "^0.14.2",
     "lodash": "^4.17.4",
     "node-env-file": "^0.1.8",
+    "object-hash": "^1.2.0",
     "pg": "^7.4.0",
-    "request": "^2.83.0"
+    "request": "^2.83.0",
+    "request-promise": "^4.2.2",
+    "string-argv": "0.0.2"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -21,12 +26,13 @@
     "babel-preset-env": "^1.6.1",
     "babel-preset-flow": "^6.23.0",
     "flow": "^0.2.3",
-    "flow-bin": "^0.60.1"
+    "flow-bin": "^0.60.1",
+    "mocha": "^4.0.1"
   },
   "scripts": {
     "deploy": "./scripts/deploy.sh",
     "start": "./scripts/start.sh",
-    "test": "test"
+    "test": "mocha --compilers js:babel-core/register"
   },
   "repository": {
     "type": "git",

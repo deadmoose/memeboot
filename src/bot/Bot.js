@@ -3,6 +3,7 @@ import Botkit from 'botkit';
 import env from 'node-env-file';
 
 import Linkify from 'commands/linkify';
+import Memify from 'commands/Memify';
 
 env(`.env`);
 
@@ -15,15 +16,6 @@ env(`.env`);
 //   "ts":"1513533005.000018",
 //   "source_team":"T70GX9U4U",
 //   "team":"T70GX9U4U",
-//   "raw_message":{
-//     "type":"message",
-//     "channel":"D8BPR6V28",
-//     "user":"U72SYPFSR",
-//     "text":"thing are l/ooking up",
-//     "ts":"1513533005.000018",
-//     "source_team":"T70GX9U4U",
-//     "team":"T70GX9U4U"
-//   },
 //   "_pipeline":{"stage":"receive"}
 // }
 class Bot {
@@ -46,11 +38,12 @@ class Bot {
 
     this.botkit.on('ambient', this.ambient);
     this.botkit.on('direct_message', this.direct_message);
+    this.botkit.on('file_share', this.file_share);
   }
 
   async ambient(bot: Object, message: Object) {
+    console.log(JSON.stringify(message));
     const text = message.text;
-    console.log(text);
     const linkifyRegex = /\bl\/([-0-9A-Za-z]+)/g;
     const links = [];
     let current = linkifyRegex.exec(text);
@@ -70,8 +63,15 @@ class Bot {
 
   async direct_message(bot: Object, message: Object) {
     console.log(JSON.stringify(message));
-    bot.reply(message, 'ack');
+    const memify = new Memify(message);
+    bot.reply(message, await memify.doThing());
   }
+
+  async file_share(bot: Object, message: Object) {
+    console.log(JSON.stringify(message));
+    bot.reply(message, 'got file share');
+  }
+
 };
 
 export default Bot;
