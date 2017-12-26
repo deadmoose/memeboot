@@ -7,6 +7,7 @@ import request from 'request-promise';
 import path from 'path';
 import uuidv4 from 'uuid';
 
+import CaptionedImage from 'commands/CaptionedImage';
 import Caption from 'models/Caption';
 import Meme from 'models/Meme';
 import SearchResults from 'models/SearchResults';
@@ -18,6 +19,7 @@ const Phase = {
   SEARCH_RESULTS: 1,
   CHOOSE_IMAGE: 2,
   CAPTION: 3,
+  DONE: 4,
 };
 
 class Memify {
@@ -105,7 +107,7 @@ class Memify {
     const image = results.get('images')[results.get('index')];
     const url = image['url'];
     const data = await request(url, { encoding: null });
-    const filename = `cas/${hash(data)}${path.extname(url)}`;
+    const filename = `static/templates/cas/${hash(data)}${path.extname(url)}`;
     fs.writeFileSync(filename, data, { encoding: null });
     await this.meme.save({ template: filename });
   }
@@ -115,13 +117,11 @@ class Memify {
     for (const caption of captions) {
       caption.save({ meme_id: this.meme.id });
     }
-    const image = this.convertImage();
-    await this.meme.save({ image: image.filename });
+    const template = this.meme.get('template');
+    const filename = `static/memes/${this.message.team}/${this.message.user}/${hash({ template, captions })}${path.extname(template)}`;
+    const image = await new CaptionedImage(template, captions, filename).getObject();
+    await this.meme.save({ image: filename/*, phase: Phase.DONE */});
     return this.getAttachment(image);
-  }
-
-  convertImage() {
-    return {filename: 'todo', url: 'http://todo', thumbnail: {url: 'todo'}};
   }
 }
 

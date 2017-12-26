@@ -15,15 +15,15 @@ import orm from 'models/db';
 const Caption = orm.Model.extend({
   tableName: 'captions',
 }, {
-  parse(text): Array<Caption> {
-    assert(text.length > 0);
+  parse(message): Array<Caption> {
+    assert(message.length > 0);
 
-    if (!text.startsWith('"')) {
+    if (!message.startsWith('"')) {
       // Simplest.
-      return [Caption.forge({ text })];
+      return [Caption.forge({ text: message.toUpperCase() })];
     }
 
-    const args = stringArgv(text);
+    const args = stringArgv(message);
     if (args.length == 0) {
       // TODO: error.
       return [];
@@ -33,17 +33,12 @@ const Caption = orm.Model.extend({
     const captions = [];
     let captionIndex = 0;
     while (captionIndex < args.length) {
-      if (args[captionIndex].charAt(0) !== '"') {
-        // TODO: error.
-        return [];
-      }
-      const text = args[captionIndex];
+      const text = args[captionIndex].toUpperCase();
       captionIndex++;
       const argStart = captionIndex;
       if (captionIndex === args.length) {
         captions.push(Caption.forge({ text }));
-        captionIndex++;
-        continue;
+        return captions;
       }
       while (captionIndex < args.length && args[captionIndex].charAt(0) !== '"') {
         captionIndex++;

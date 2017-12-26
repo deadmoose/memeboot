@@ -14,6 +14,7 @@ const clientId = process.env.SLACK_ID;
 const clientSecret = process.env.SLACK_SECRET;
 
 const app = express();
+app.use(express.static('static'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
