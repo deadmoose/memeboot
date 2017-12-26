@@ -40,8 +40,8 @@ const Caption = orm.Model.extend({
         captions.push(Caption.forge({ text }));
         return captions;
       }
-      while (captionIndex < args.length && args[captionIndex].charAt(0) !== '"') {
-        captionIndex++;
+      while (captionIndex < args.length && args[captionIndex].charAt(0) === '-') {
+        captionIndex += 2;
       }
       const options = args.slice(argStart, captionIndex);
       captions.push(Caption.forge({ text, options }));
