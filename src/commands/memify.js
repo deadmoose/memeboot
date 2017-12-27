@@ -1,5 +1,4 @@
 // @flow
-import GoogleImages from 'google-images';
 import env from 'node-env-file';
 import fs from 'fs';
 import hash from 'object-hash';
@@ -23,7 +22,6 @@ const Phase = {
 };
 
 class Memify {
-  static CLIENT: GoogleImages;
   promise: Promise<Meme>;
   meme: Meme;
   message: Object;
@@ -43,7 +41,11 @@ class Memify {
       this.meme = await this.meme.save();
     }
     let phase = this.meme.get('phase');
-    phase = phase ? phase : Phase.QUERY;
+    if (!phase || this.message.text.startsWith('search "')) {
+      // New query.
+      phase = Phase.QUERY;
+      this.meme = await Meme.forge({ user: this.message.user, team: this.message.team }).save();
+    }
     switch (phase) {
       case Phase.QUERY:
         return this.searchForImages();
@@ -56,6 +58,7 @@ class Memify {
       case Phase.CHOOSE_IMAGE:
         await this.downloadImage();
         // Fallthrough.
+      case Phase.DONE:
       case Phase.CAPTION:
         return this.caption();
     }
@@ -63,43 +66,22 @@ class Memify {
 
   searchForImages() {
     const query = this.message.text;
-    return Memify.CLIENT.search(query, { size: 'medium' }).then(images => {
-      if (images.length == 0) {
-        return { text: "No images found" };
-      }
-      SearchResults.forge({
-        meme_id: this.meme.id,
-        images: JSON.stringify(images),
-        index: 0,
-      }).save();
-      this.meme.save({ phase: Phase.SEARCH_RESULTS });
-      return this.getAttachment(images[0]);
-    }).catch(err => ({ text: err }));
-  }
-
-  getAttachment(image: Object) {
-    return {
-      attachments: [
-        {
-          title: 'Here\'s what I found', // TODO: make configurable.
-          image_url: image.url,
-          thumb_url: image.thumbnail.url,
-        },
-      ],
-    };
+    const results = SearchResults.search(query, this.meme.id);
+    if (!results.hasNext()) {
+      return { text: "No images found" };
+    }
+    this.meme.save({ phase: Phase.SEARCH_RESULTS });
+    return results.getAttachment();
   }
 
   async next() {
     const results = await SearchResults.forge({ meme_id: this.meme.id }).fetch({ require: true });
-    let index = results.get('index');
-    index++;
-    const images = results.get('images');
-    if (index >= images.length) {
-      await this.meme.save({ phase: Phase.QUERY });
-      return { text: 'That\'s all I found! Try another search?' };
+    if (results.hasNext()) {
+      results.next();
+      return results.getAttachment();
     }
-    await results.save({ index });
-    return this.getAttachment(images[index]);
+    await this.meme.save({ phase: Phase.QUERY });
+    return { text: 'That\'s all I found! Try another search?' };
   }
 
   async downloadImage() {
@@ -120,11 +102,16 @@ class Memify {
     const template = this.meme.get('template');
     const filename = `static/memes/${this.message.team}/${this.message.user}/${hash({ template, captions })}${path.extname(template)}`;
     const image = await new CaptionedImage(template, captions, filename).getObject();
-    await this.meme.save({ image: filename/*, phase: Phase.DONE */});
-    return this.getAttachment(image);
+    await this.meme.save({ image: filename, phase: Phase.DONE });
+    return {
+      attachments: [
+        {
+          title: 'Tada! To recaption use `"your new caption". To start a new search, use \'search "your query terms"\'.',
+          image_url: image.url,
+        },
+      ],
+    };
   }
 }
-
-Memify.CLIENT = new GoogleImages(process.env.GOOGLE_CUSTOM_ENGINE_ID, process.env.GOOGLE_API_KEY);
 
 export default Memify;

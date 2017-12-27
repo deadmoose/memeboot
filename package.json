@@ -35,7 +35,7 @@
   "scripts": {
     "deploy": "./scripts/deploy.sh",
     "start": "./scripts/start.sh",
-    "test": "mocha --recursive --compilers js:babel-core/register --exit"
+    "test": "NODE_ENV=test mocha --recursive --compilers js:babel-core/register --exit"
   },
   "repository": {
     "type": "git",

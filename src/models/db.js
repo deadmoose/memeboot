@@ -1,6 +1,7 @@
 // @flow
 import bookshelf from 'bookshelf';
 import knex from 'knex';
+import mockKnex from 'mock-knex';
 import env from 'node-env-file';
 
 env(`.env`);
@@ -15,6 +16,10 @@ const connection = knex({
     charset: 'utf8',
   },
 });
+
+if (process.env.NODE_ENV == 'test') {
+  mockKnex.mock(connection, 'knex@0.14.2');
+}
 
 const orm = bookshelf(connection);
 
