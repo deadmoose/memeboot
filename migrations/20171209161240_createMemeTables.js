@@ -19,10 +19,11 @@ exports.up = function(knex, Promise) {
     table.integer('meme_id').references('memes.id'),
     table.integer('index');
     table.json('images');
+    table.string('query');
     table.timestamps(true);
   });
 };
 
 exports.down = function(knex, Promise) {
-  return knex.schema.dropTable('memes').dropTable('captions').dropTable('search_results');
+  return knex.schema.dropTable('search_results').dropTable('captions').dropTable('memes');
 };

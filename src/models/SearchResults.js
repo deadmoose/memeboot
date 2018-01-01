@@ -5,13 +5,24 @@ import orm from 'models/db';
 
 const SearchResults = orm.Model.extend({
   tableName: 'search_results',
+  hasTimestamps: true,
 
   getAttachment: function () {
-    const image = this.get('images')[this.get('index')];
+    const index = this.get('index');
+    const image = this.get('images')[index];
+    let text = '';
+    if (this.hasNext() && this.hasPrevious()) {
+      text = 'Type \'next\' or \'previous\' for more results, or \'search "new query"\' for a new search.';
+    } else if (this.hasNext()) {
+      text = 'Type \'next\' for the next result.';
+    } else if (this.hasPrevious()) {
+      text = 'Type \'previous\' for the previous result.';
+    }
     return {
       attachments: [
         {
-          title: 'Here\'s what I found',
+          title: `Results for "${this.get('query')}":`,
+          text,
           image_url: image.url,
           thumb_url: image.thumbnail.url,
         },
@@ -23,12 +34,29 @@ const SearchResults = orm.Model.extend({
     return this.get('images') && this.get('index') < this.get('images').length;
   },
 
+  hasPrevious: function () {
+    return this.get('index') > 0;
+  },
+
   next: async function () {
-    let index = this.get('index');
-    await this.set({ index: index + 1 }).save();
+    // 'images' isn't a string so we can't resave it.
+    const index = this.get('index') + 1;
+    await this.save({ index }, { patch: true });
+  },
+
+  previous: async function () {
+    // 'images' isn't a string so we can't resave it.
+    const index = this.get('index') - 1;
+    await this.save({ index }, { patch: true });
   },
 }, {
   CLIENT: new GoogleImages(process.env.GOOGLE_CUSTOM_ENGINE_ID, process.env.GOOGLE_API_KEY),
+
+  latest: (memeId) => {
+    return SearchResults.forge({ meme_id: memeId })
+      .orderBy('updated_at', 'DESC')
+      .fetch({ require: true });
+  },
 
   search: (query, memeId) => {
     return SearchResults.CLIENT.search(query, { size: 'medium' }).then(images => {
@@ -40,7 +68,8 @@ const SearchResults = orm.Model.extend({
         images: JSON.stringify(images),
         index: 0,
         query,
-      }).save();
+      }).save()
+        .then(model => SearchResults.forge({ id: model.get('id') }).fetch({ require: true }));
     }).catch(err => ({ text: err }));
   },
 });

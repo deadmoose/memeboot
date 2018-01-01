@@ -5,9 +5,14 @@ import express from 'express';
 import session from 'express-session';
 import env from 'node-env-file';
 import request from 'request';
+import winston from 'winston';
 
 import Linkify from 'commands/linkify';
 import Bot from 'bot/Bot';
+
+winston.level = 'debug';
+const console = new winston.transports.Console();
+winston.add(console);
 
 env(`.env`);
 const clientId = process.env.SLACK_ID;

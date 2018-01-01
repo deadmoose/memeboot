@@ -3,4 +3,4 @@
 set -eux
 
 scripts/build.sh
-node lib/server.js
+node --trace-warnings lib/server.js

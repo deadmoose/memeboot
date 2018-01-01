@@ -3,11 +3,10 @@ import fs from 'fs';
 import im from 'imagemagick';
 import env from 'node-env-file';
 import path from 'path';
+import winston from 'winston';
 
 import Caption from 'models/Caption';
-import config from 'config';
-
-env(`.env`);
+import Config from 'config';
 
 
 class CaptionedImage {
@@ -26,16 +25,20 @@ class CaptionedImage {
 
   async getObject() {
     const dimensions = await new Promise((resolve, reject) => {
-      im.identify(['-format', '%wx%h', this.template], function(err, output) {
+      // This works on non-gifs, too.
+      const firstFrame = `${this.template}[0]`;
+      im.identify(['-format', '%wx%h', firstFrame], function(err, output) {
         if (err) {
           reject(err);
         }
+        winston.info(`dimensions: ${output}`);
         resolve(output);
       });
     });
 
     const args = [
       this.template,
+      'null:',
       '-font',
       'Impact',
       '-fill',
@@ -51,18 +54,23 @@ class CaptionedImage {
       '-size',
       dimensions,
       `label:${this.captions[0].get('text')}`,
-      '-composite',
+      '-layers',
+      'composite',
+      '-layers',
+      'optimize',
       this.outputFilename
     ];
+    winston.info(`calling imagemagick with ${JSON.stringify(args)}`);
     await new Promise((resolve, reject) => {
       im.convert(args, (err, stdout) => {
+        winston.info('done converting');
         if (err) {
           return reject(err);
         }
         resolve();
       });
     });
-    const url = `${config.url}/${this.uri}`;
+    const url = `${Config.URL}/${this.uri}`;
     return { url, thumbnail: { url } };
   }
 

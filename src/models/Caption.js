@@ -14,6 +14,7 @@ import orm from 'models/db';
  */
 const Caption = orm.Model.extend({
   tableName: 'captions',
+  hasTimestamps: true,
 }, {
   parse(message): Array<Caption> {
     assert(message.length > 0);
