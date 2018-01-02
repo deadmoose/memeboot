@@ -1,13 +1,10 @@
 // @flow
-import fs from 'fs';
 import im from 'imagemagick';
-import env from 'node-env-file';
-import path from 'path';
 import winston from 'winston';
 
 import Caption from 'models/Caption';
+import Util from 'commands/Util';
 import Config from 'config';
-
 
 class CaptionedImage {
   captions: Array<Caption>;
@@ -19,7 +16,7 @@ class CaptionedImage {
     this.template = template;
     this.captions = captions;
     this.outputFilename = outputFilename;
-    this.mkdirRecursive(outputFilename);
+    Util.mkdirRecursive(outputFilename);
     this.uri = outputFilename.substring(outputFilename.indexOf('/') + 1);
   }
 
@@ -73,16 +70,6 @@ class CaptionedImage {
     const url = `${Config.URL}/${this.uri}`;
     return { url, thumbnail: { url } };
   }
-
-  mkdirRecursive(filename: string) {
-    const parent = path.dirname(filename);
-    if (parent.length <= 1 || fs.existsSync(parent)) {
-      return;
-    }
-    this.mkdirRecursive(parent);
-    fs.mkdirSync(parent);
-  }
-
 }
 
 export default CaptionedImage;

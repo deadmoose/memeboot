@@ -8,12 +8,13 @@ import uuidv4 from 'uuid';
 import winston from 'winston';
 
 import CaptionedImage from 'commands/CaptionedImage';
+import Util from 'commands/Util';
 import Caption from 'models/Caption';
 import Config from 'config';
 import Meme from 'models/Meme';
 import SearchResults from 'models/SearchResults';
 
-env(`.env`);
+env('.env');
 
 const Phase = {
   QUERY: 0,
@@ -27,9 +28,14 @@ class Memify {
   meme: Meme;
   message: Object;
 
+  static async create(message: Object) {
+    const memify = new Memify(message);
+    memify.meme = await memify.getMeme();
+    return memify;
+  }
+
   constructor(message: Object) {
     this.message = message;
-    this.meme = this.getMeme();
   }
 
   async getMeme() {
@@ -51,8 +57,16 @@ class Memify {
     return meme;
   }
 
-  async doThing() {
-    this.meme = await this.meme;
+  async uploadFile(url: string) {
+    const data = await request({
+      uri: url,
+      headers: { Authorization: `Bearer ${Config.SLACK_TOKEN}`
+    }, encoding: null });
+    const filename = `static/templates/${this.message.team}/${this.message.user}/${hash(data)}${path.extname(url)}`;
+    return this.writeTemplate(url, filename, data);
+  }
+
+  async handleMessage() {
     let phase = this.meme.get('phase');
     winston.info(`phase ${phase}: ${this.message.text}`);
     switch (phase) {
@@ -106,16 +120,22 @@ class Memify {
   async downloadImage() {
     const results = await SearchResults.latest(this.meme.get('id'));
     const image = results.get('images')[results.get('index')];
-    const url = image['url'];
+    const url = image.url;
     const data = await request(url, { encoding: null });
     const filename = `static/templates/cas/${hash(data)}${path.extname(url)}`;
-    if (!fs.existsSync(filename)) {
+    return { text: await this.writeTemplate(url, filename, data) };
+  }
+
+  async writeTemplate(url: string, filename: string, data: string) {
+    Util.mkdirRecursive(filename);
+    if (fs.existsSync(filename)) {
+      winston.info(`Using cached copy of ${url}: ${filename}`);
+    } else {
       winston.info(`saving ${url} as ${filename}`);
       fs.writeFileSync(filename, data, { encoding: null });
-    } else {
-      winston.info(`Using cached copy of ${url}: ${filename}`);
     }
     await this.meme.save({ template: filename });
+    return 'Type "your caption" to add a caption.';
   }
 
   async caption() {

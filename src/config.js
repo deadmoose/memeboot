@@ -5,8 +5,8 @@ import winston from 'winston';
 env('.env');
 
 const Config = ((process.env: any): {
+  SLACK_TOKEN: string,
   URL: string,
-  [string]: string,
 });
 
 export default Config;

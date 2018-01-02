@@ -63,13 +63,14 @@ class Bot {
 
   async direct_message(bot: Object, message: Object) {
     console.log(JSON.stringify(message));
-    const memify = new Memify(message);
-    bot.reply(message, await memify.doThing());
+    const memify = await Memify.create(message);
+    bot.reply(message, await memify.handleMessage());
   }
 
   async file_share(bot: Object, message: Object) {
     console.log(JSON.stringify(message));
-    bot.reply(message, 'got file share');
+    const memify = await Memify.create(message);
+    bot.reply(message, await memify.uploadFile(message.file.url_private));
   }
 
 };
