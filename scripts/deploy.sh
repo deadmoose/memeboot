@@ -24,5 +24,6 @@ npm install
 killall node || true
 
 # Startup
-npm run start &
+npm run build
+sudo /usr/local/bin/node --trace-warnings lib/server.js &
 EOF

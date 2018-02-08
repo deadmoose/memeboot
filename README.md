@@ -9,3 +9,9 @@ Generate memes in Slack.
 5. Replace URL in .env with the ngrok address.
 6. Run `yarn run start`.
 7. Go to test slack channel.
+
+# Deploy
+
+```
+yarn run deploy
+```
