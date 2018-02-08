@@ -33,6 +33,10 @@ class CaptionedImage {
       });
     });
 
+    const width = parseInt(dimensions.substring(0, dimensions.indexOf('x')));
+    const height = parseInt(dimensions.substring(dimensions.indexOf('x') + 1));
+    const maxTextHeight = Math.floor(height / 5);
+
     const args = [
       this.template,
       'null:',
@@ -49,7 +53,7 @@ class CaptionedImage {
       '-gravity',
       'south',
       '-size',
-      dimensions,
+      `${width}x${maxTextHeight}`,
       `label:${this.captions[0].get('text')}`,
       '-layers',
       'composite',
