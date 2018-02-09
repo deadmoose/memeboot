@@ -31,7 +31,7 @@ app.use(session({
 
 const bot = new Bot();
 
-const port = process.env.NODE_ENV === 'production' ? 80 : 4390;
+const port = process.env.PORT || 4390;
 app.listen(port, function () {
   console.log("Listening on port " + port);
 });
