@@ -33,4 +33,6 @@ killall node || true
 # Startup
 npm run build
 sudo /usr/local/bin/node --trace-warnings lib/server.js &> /var/log/node/access.log &
+
+echo "Deployed $tgz successfully!"
 EOF
