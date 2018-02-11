@@ -1,5 +1,6 @@
 // @flow
 import assert from 'assert';
+import _ from 'lodash';
 import stringArgv from 'string-argv';
 
 import orm from 'models/db';
@@ -13,8 +14,21 @@ import orm from 'models/db';
  * Escape quote with \ (\").
  */
 const Caption = orm.Model.extend({
-  tableName: 'captions',
+  tableName: 'caption',
   hasTimestamps: true,
+
+  getGravity: () => {
+    // $FlowFixMe
+    const options = this.get('options');
+    if (!options || !options.length) {
+      return 'south';
+    }
+    const gravityIndex = _.findIndex(options, (opt) => opt === '-gravity') + 1;
+    if (gravityIndex === 0) {
+      return 'south';
+    }
+    return options[gravityIndex];
+  },
 }, {
   parse(message): Array<Caption> {
     assert(message.length > 0);

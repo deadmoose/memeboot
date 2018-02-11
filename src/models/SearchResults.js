@@ -4,7 +4,7 @@ import GoogleImages from 'google-images';
 import orm from 'models/db';
 
 const SearchResults = orm.Model.extend({
-  tableName: 'search_results',
+  tableName: 'search_result',
   hasTimestamps: true,
 
   getAttachment: function () {

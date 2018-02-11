@@ -12,14 +12,14 @@ set -eux
 WEBROOT=/usr/share/nginx/memeboot
 
 # Cleanup old package
-sudo rm -rf "$WEBROOT"
+sudo rm -rf "\${WEBROOT}"
 
 # Install new package
 tar zxvf "$tgz"
-sudo mv package "$WEBROOT"
-sudo cp .prodenv "$WEBROOT"
+sudo mv package "\${WEBROOT}"
+sudo cp .prodenv "\${WEBROOT}/.env"
 
-cd "$WEBROOT"
+cd "\${WEBROOT}"
 
 # Install prereqs
 npm install

@@ -37,9 +37,10 @@ class CaptionedImage {
     const height = parseInt(dimensions.substring(dimensions.indexOf('x') + 1));
     const maxTextHeight = Math.floor(height / 5);
 
+    const caption = this.captions[0];
     const args = [
       this.template,
-      'null:',
+      'null:', // Reference to image (the text doesn't come from an image, so null.
       '-font',
       'Impact',
       '-fill',
@@ -51,10 +52,10 @@ class CaptionedImage {
       '-background',
       'none',
       '-gravity',
-      'south',
+      caption.getGravity(),
       '-size',
       `${width}x${maxTextHeight}`,
-      `label:${this.captions[0].get('text')}`,
+      `label:${caption.get('text')}`,
       '-layers',
       'composite',
       '-layers',

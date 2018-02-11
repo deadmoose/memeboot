@@ -1,6 +1,6 @@
 
 exports.up = function(knex, Promise) {
-  return knex.schema.createTable('memes', function(table) {
+  return knex.schema.createTable('meme', function(table) {
     table.increments('id').primary();
     table.string('user');
     table.string('team');
@@ -8,15 +8,15 @@ exports.up = function(knex, Promise) {
     table.string('template');
     table.string('image');
     table.timestamps(true);
-  }).createTable('captions', function(table) {
+  }).createTable('caption', function(table) {
     table.increments('id').primary();
     table.string('text');
     table.specificType('options', 'text[]');
-    table.integer('meme_id').references('memes.id');
+    table.integer('meme_id').references('meme.id');
     table.timestamps(true);
-  }).createTable('search_results', function(table) {
+  }).createTable('search_result', function(table) {
     table.increments('id').primary();
-    table.integer('meme_id').references('memes.id'),
+    table.integer('meme_id').references('meme.id'),
     table.integer('index');
     table.json('images');
     table.string('query');
