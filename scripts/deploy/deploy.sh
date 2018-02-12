@@ -32,7 +32,7 @@ killall node || true
 
 # Startup
 npm run build
-sudo /usr/local/bin/node --trace-warnings lib/server.js &> /var/log/node/access.log &
+sudo NODE_BINARY=\$(which node) sh -c '\${NODE_BINARY} --trace-warnings lib/server.js &> /var/log/node/access.log &'
 
 echo "Deployed $tgz successfully!"
 EOF
