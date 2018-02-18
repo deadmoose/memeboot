@@ -7,6 +7,7 @@ import Link from 'models/link';
 const HELP = 'help';
 const DELETE = 'delete';
 const INVALID_CHARS = /[^-0-9A-Za-z]/;
+const MAX_RESULTS = 10;
 
 
 class Linkify {
@@ -32,7 +33,7 @@ class Linkify {
       if (parts.length == 2) {
         this._response = this.create(parts);
       } else {
-        this._response = this.query(parts[0]);
+        this._response = Linkify.query(parts[0]);
       }
     }
   }
@@ -67,18 +68,8 @@ class Linkify {
     });
   }
 
-  static async mention(alias: string) {
-    return await Link.forge({ slug: alias }).fetch().then((link) => {
-      if (link) {
-        return link.get('url');
-      } else {
-        return null;
-      }
-    });
-  }
-
-  async query(slug: string) {
-    const splitLink = this.splitLink(slug);
+  static async query(slug: string) {
+    const splitLink = Linkify.splitLink(slug);
     const link = await Link.forge({ slug: splitLink.base })
       .fetch()
       .catch(err => {
@@ -133,7 +124,26 @@ class Linkify {
     return null;
   }
 
-  splitLink(url: string) {
+  static async mention(text: string) {
+    // Certainly not going to match all valid URLs, but basically looking for:
+    // * l/base
+    // * l/base/something
+    // * l/base#target
+    const linkifyRegex = /\bl\/([-0-9A-Za-z]+(?:[?/#][-0-9A-Za-z?/#=.]+)?)/g;
+    const links = [];
+    let current = linkifyRegex.exec(text);
+    let count = 0;
+    while (current && count < MAX_RESULTS) {
+      const alias = current[1];
+      const response = await Linkify.query(alias);
+      links.push(`${alias} -> ${response.text}`);
+      current = linkifyRegex.exec(text);
+      count++;
+    }
+    return links;
+  }
+
+  static splitLink(url: string) {
     const result = INVALID_CHARS.exec(url);
     if (result && result.length > 0) {
       const extIndex = url.indexOf(result[0]);

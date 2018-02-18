@@ -3,7 +3,7 @@ import Botkit from 'botkit';
 import _ from 'lodash';
 import env from 'node-env-file';
 
-import Linkify from 'commands/linkify';
+import Linkify from 'commands/Linkify';
 import Memify from 'commands/Memify';
 import Util from 'commands/Util';
 
@@ -50,21 +50,13 @@ class Bot {
 
   async ambient(bot: Object, message: Object) {
     console.log(JSON.stringify(message));
-    const text = message.text;
-    const linkifyRegex = /\bl\/([-0-9A-Za-z]+)/g;
-    const links = [];
-    let current = linkifyRegex.exec(text);
-    while (current) {
-      const alias = current[1];
-      const url = await Linkify.mention(alias);
-      if (url) {
-        links.push(`${alias} -> ${url}`);
-      } else {
-        links.push(`Alias ${alias} not found.`);
-      }
-      current = linkifyRegex.exec(text);
+    let links = [];
+    if (message.attachments) {
+      _.forEach(message.attachments, async (attachment) => {
+        links = links.concat(await Linkify.mention(attachment.fallback));
+      });
     }
-
+    links = links.concat(await Linkify.mention(message.text));
     bot.reply(message, links.join('\n'));
   }
 

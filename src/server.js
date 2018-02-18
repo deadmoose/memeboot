@@ -7,7 +7,7 @@ import env from 'node-env-file';
 import request from 'request';
 import winston from 'winston';
 
-import Linkify from 'commands/linkify';
+import Linkify from 'commands/Linkify';
 import Bot from 'bot/Bot';
 
 winston.level = 'debug';
@@ -64,6 +64,6 @@ app.post('/command', async function(req, res) {
   const text = req.body.text;
   const command = text.split(' ')[0];
   console.log(JSON.stringify(req.body));
-  let result = await new Linkify(req.body).getResponse();
+  const result = await new Linkify(req.body).getResponse();
   res.json(result);
 });
