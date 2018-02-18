@@ -10,6 +10,14 @@ class Util {
     Util.mkdirRecursive(parent);
     fs.mkdirSync(parent);
   }
+
+  static getExtension(filename: string) {
+    const lastDotIndex = filename.lastIndexOf('.');
+    if (lastDotIndex === -1) {
+      return '';
+    }
+    return filename.substring(lastDotIndex + 1);
+  }
 }
 
 export default Util;

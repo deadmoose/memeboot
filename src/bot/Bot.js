@@ -1,9 +1,11 @@
 // @flow
 import Botkit from 'botkit';
+import _ from 'lodash';
 import env from 'node-env-file';
 
 import Linkify from 'commands/linkify';
 import Memify from 'commands/Memify';
+import Util from 'commands/Util';
 
 env(`.env`);
 
@@ -77,8 +79,19 @@ class Bot {
       // Not a direct message.
       return;
     }
+
+    const url = message.file.url_private;
+    if (!this.isImage(url)) {
+      bot.reply(message, `I don't know how to memify a ${Util.getExtension(url)} file`);
+      return;
+    }
     const memify = await Memify.create(message);
-    bot.reply(message, await memify.uploadFile(message.file.url_private));
+    bot.reply(message, await memify.uploadFile(url));
+  }
+
+  isImage(filename: string) {
+    filename = filename.toLowerCase();
+    return _.includes(['gif', 'jpg', 'jpeg', 'png'], Util.getExtension(filename));
   }
 
 };
