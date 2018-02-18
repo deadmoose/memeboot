@@ -17,7 +17,7 @@ class CaptionedImage {
     this.captions = captions;
     this.outputFilename = outputFilename;
     Util.mkdirRecursive(outputFilename);
-    this.uri = outputFilename.substring(outputFilename.indexOf('/') + 1);
+    this.uri = outputFilename.substring(Config.STATIC_DIR.length + 1);
   }
 
   async getObject() {
