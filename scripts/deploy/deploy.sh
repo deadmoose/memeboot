@@ -4,8 +4,11 @@ set -eux
 
 scripts/build.sh
 
+MEMEBOOT_HOME="/home/ec2-user"
+
 tgz="$(npm pack)"
-scp "$tgz" "memeboot:/home/ec2-user/$tgz"
+scp "$tgz" "memeboot:${MEMEBOOT_HOME}/$tgz"
+scp scripts/deploy/.prodenv "memeboot:${MEMEBOOT_HOME}/.prodenv"
 ssh memeboot <<EOF
 set -eux
 

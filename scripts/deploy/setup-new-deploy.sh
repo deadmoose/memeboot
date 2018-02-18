@@ -7,7 +7,7 @@ scp scripts/deploy/.prodenv "memeboot:/home/ec2-user/.prodenv"
 ssh memeboot <<EOF
 # Install packages
 sudo yum -y update
-sudo yum -y install postgresql96 nginx emacs
+sudo yum -y install postgresql96 nginx ImageMagick emacs
 # Install nvm
 curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.6/install.sh | bash
 . ~/.nvm/nvm.sh
