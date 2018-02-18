@@ -12,7 +12,7 @@ env(`.env`);
 //   "type":"direct_message",
 //   "channel":"D8BPR6V28",
 //   "user":"U72SYPFSR",
-//   "text":"thing are l/ooking up",
+//   "text":"things are l/ooking up",
 //   "ts":"1513533005.000018",
 //   "source_team":"T70GX9U4U",
 //   "team":"T70GX9U4U",
@@ -25,7 +25,6 @@ class Bot {
     this.botkit = Botkit.slackbot({
       clientId: process.env.SLACK_ID,
       clientSecret: process.env.SLACK_SECRET,
-      debug: true,
     });
 
     var bot = this.botkit.spawn({
@@ -36,9 +35,15 @@ class Bot {
       }
     });
 
-    this.botkit.on('ambient', this.ambient);
-    this.botkit.on('direct_message', this.direct_message);
-    this.botkit.on('file_share', this.file_share);
+    this.botkit.on('ambient', (bot, message) => {
+      this.ambient(bot, message);
+    });
+    this.botkit.on('direct_message', (bot, message) => {
+      this.direct_message(bot, message)
+    });
+    this.botkit.on('file_share', (bot, message) => {
+      this.file_share(bot, message);
+    });
   }
 
   async ambient(bot: Object, message: Object) {
@@ -68,7 +73,10 @@ class Bot {
   }
 
   async file_share(bot: Object, message: Object) {
-    console.log(JSON.stringify(message));
+    if (!message.channel.startsWith('D')) {
+      // Not a direct message.
+      return;
+    }
     const memify = await Memify.create(message);
     bot.reply(message, await memify.uploadFile(message.file.url_private));
   }
