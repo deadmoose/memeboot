@@ -31,7 +31,7 @@ npm install
 node_modules/.bin/knex migrate:latest
 
 # Shutdown old server, if running
-killall node || true
+sudo killall node || true
 
 # Startup
 npm run build
