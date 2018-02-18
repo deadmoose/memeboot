@@ -151,8 +151,7 @@ class Memify {
     return {
       attachments: [
         {
-          title: `Tada! ${image.url}`,
-          text: 'To recaption type `"your new caption". To start a new search, type \'search "your query terms"\'.',
+          fallback: `@memeboot-generated meme: ${image.url}`,
           image_url: image.url,
         },
       ],

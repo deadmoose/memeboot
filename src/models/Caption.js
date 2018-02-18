@@ -17,8 +17,11 @@ const Caption = orm.Model.extend({
   tableName: 'caption',
   hasTimestamps: true,
 
-  getGravity: () => {
-    // $FlowFixMe
+  meme() {
+    return this.belongsTo('Meme');
+  },
+
+  getGravity() {
     const options = this.get('options');
     if (!options || !options.length) {
       return 'south';
