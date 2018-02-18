@@ -5,6 +5,9 @@ import stringArgv from 'string-argv';
 
 import orm from 'models/db';
 
+const POSSIBLE_GRAVITIES = [
+  'north', 'south', 'east', 'west', 'northeast', 'northwest', 'southeast', 'southwest'];
+
 /**
  * Captions are given in the form:
  *   - Simplest: `I am a caption`
@@ -28,6 +31,9 @@ const Caption = orm.Model.extend({
     }
     const gravityIndex = _.findIndex(options, (opt) => opt === '-gravity') + 1;
     if (gravityIndex === 0) {
+      return 'south';
+    }
+    if (!_.includes(POSSIBLE_GRAVITIES, options[gravityIndex])) {
       return 'south';
     }
     return options[gravityIndex];

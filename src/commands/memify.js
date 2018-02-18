@@ -142,20 +142,23 @@ class Memify {
     winston.info(`captioning`);
     const captions = Caption.parse(this.message.text);
     for (const caption of captions) {
+      // No waiting required, just should be done eventually.
       caption.save({ meme_id: this.meme.get('id') });
     }
     const template = this.meme.get('template');
     const filename = `${Config.STATIC_DIR}/memes/${this.message.team}/${this.message.user}/${hash({ template, captions })}${path.extname(template)}`;
-    const image = await new CaptionedImage(template, captions, filename).getObject();
-    await this.meme.save({ image: filename, phase: Phase.DONE });
-    return {
-      attachments: [
-        {
-          fallback: `@memeboot-generated meme: ${image.url}`,
-          image_url: image.url,
-        },
-      ],
-    };
+    return new CaptionedImage(template, captions, filename).getObject().then((image) => {
+      return this.meme.save({ image: filename, phase: Phase.DONE }).then(() => ({
+        attachments: [
+          {
+            fallback: `@memeboot-generated meme: ${image.url}`,
+            image_url: image.url,
+          },
+        ],
+      }));
+    }).catch((err) => {
+      return { text: `Error generating meme: ${JSON.stringify(err)}` };
+    });
   }
 }
 

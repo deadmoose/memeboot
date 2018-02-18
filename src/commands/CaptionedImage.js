@@ -73,6 +73,7 @@ class CaptionedImage {
       });
     });
     const url = `${Config.URL}/${this.uri}`;
+    winston.info(`serving at ${url}`);
     return { url, thumbnail: { url } };
   }
 }
