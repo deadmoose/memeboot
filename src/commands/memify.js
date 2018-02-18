@@ -62,7 +62,7 @@ class Memify {
       uri: url,
       headers: { Authorization: `Bearer ${Config.SLACK_TOKEN}`
     }, encoding: null });
-    const filename = `static/templates/${this.message.team}/${this.message.user}/${hash(data)}${path.extname(url)}`;
+    const filename = `${Config.STATIC_DIR}/templates/${this.message.team}/${this.message.user}/${hash(data)}${path.extname(url)}`;
     return this.writeTemplate(url, filename, data);
   }
 
@@ -122,7 +122,7 @@ class Memify {
     const image = results.get('images')[results.get('index')];
     const url = image.url;
     const data = await request(url, { encoding: null });
-    const filename = `static/templates/cas/${hash(data)}${path.extname(url)}`;
+    const filename = `${Config.STATIC_DIR}/templates/cas/${hash(data)}${path.extname(url)}`;
     return { text: await this.writeTemplate(url, filename, data) };
   }
 
@@ -145,7 +145,7 @@ class Memify {
       caption.save({ meme_id: this.meme.get('id') });
     }
     const template = this.meme.get('template');
-    const filename = `static/memes/${this.message.team}/${this.message.user}/${hash({ template, captions })}${path.extname(template)}`;
+    const filename = `${Config.STATIC_DIR}/memes/${this.message.team}/${this.message.user}/${hash({ template, captions })}${path.extname(template)}`;
     const image = await new CaptionedImage(template, captions, filename).getObject();
     await this.meme.save({ image: filename, phase: Phase.DONE });
     return {

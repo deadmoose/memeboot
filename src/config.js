@@ -6,6 +6,7 @@ env('.env');
 
 const Config = ((process.env: any): {
   SLACK_TOKEN: string,
+  STATIC_DIR: string,
   URL: string,
 });
 
