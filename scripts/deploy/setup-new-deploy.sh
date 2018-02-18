@@ -2,7 +2,8 @@
 
 set -eux
 
-scp scripts/deploy/.prodenv "memeboot:/home/ec2-user/.prodenv"
+scp scripts/deploy/nginx.conf "memeboot:/etc/nginx/nginx.conf"
+scp scripts/deploy/policy.xml "memeboot:/etc/ImageMagick/policy.xml"
 
 ssh memeboot <<EOF
 # Install packages
@@ -15,6 +16,5 @@ nvm install 9.4.0
 node -e "console.log('Running Node.js ' + process.version)"
 
 sudo mkdir /var/log/node
-sudo cp scripts/deploy/nginx.conf /etc/nginx/nginx.conf
 sudo service nginx start
 EOF
