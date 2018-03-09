@@ -4,7 +4,7 @@ Generate memes in Slack.
 
 1. Start ngrok (`ngrok http 4390`).
 2. Go to https://api.slack.com/apps.
-3. Under Slash Comamnds, change request URL to the ngrok address.
+3. Under Slash Commands, change request URL to the ngrok address.
 4. Under OAuth and Permissions, change Redirect URL to the ngrok address.
 5. Replace URL in .env with the ngrok address.
 6. Run `yarn run start`.
